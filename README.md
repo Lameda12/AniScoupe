@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://giphy.com/embed/wsOUK1nwE7gWCWvgj3" width="361" height="480" style="" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/anime-dance-cute-adorable-wsOUK1nwE7gWCWvgj3" width="300" alt="AniScoupe Logo/Banner"/>
+  <iframe src="https://giphy.com/embed/wsOUK1nwE7gWCWvgj3" width="361" height="480" style="" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/anime-dance-cute-adorable-wsOUK1nwE7gWCWvgj3">via GIPHY</a></p>
   <h1>🌟 AniScoupe 🌟</h1>
   <p>Your Ultimate Anime Discovery and Watchlist Manager</p>
   
