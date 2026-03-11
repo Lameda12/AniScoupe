@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHJrMnNnbGVwMWpwcTVweXhjMWVxbThzYmlhNmRxZGoxM2F6Y3IwaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/a6pzK009rwVglSyYFv/giphy.gif" width="300" alt="AniScoupe Logo/Banner"/>
+  <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExd252b2h0OHM4ejhpamNkN3FzMXIyMnJlMDd4czFpN3BpbGRzN3M5OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wsOUK1nwE7gWCWvgj3/giphy.gif" width="300" alt="AniScoupe Logo/Banner"/>
   <h1>🌟 AniScoupe 🌟</h1>
   <p>Your Ultimate Anime Discovery and Watchlist Manager</p>
   
