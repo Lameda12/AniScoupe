@@ -21,6 +21,11 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8472174280169345"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className="min-h-screen bg-[#0a0a0f] antialiased">
         <Navbar />
