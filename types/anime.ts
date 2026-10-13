@@ -46,6 +46,8 @@ export interface Anime {
   type: string | null;
   source: string | null;
   episodes: number | null;
+  /** Episodes released so far, for airing shows. */
+  aired_episodes?: number | null;
   status: string | null;
   airing: boolean;
   score: number | null;

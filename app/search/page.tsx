@@ -181,7 +181,7 @@ export default function SearchPage() {
         <div className="text-center py-24">
           <p className="font-display text-4xl text-muted-foreground/30 mb-4">COULDN&apos;T LOAD</p>
           <p className="text-muted-foreground text-sm mb-6">
-            The anime database (Jikan) is busy or down right now. Give it a few seconds.
+            The anime database (AniList) is busy or down right now. Give it a few seconds.
           </p>
           <Button onClick={retry} variant="outline" className="gap-2">
             <RotateCw size={14} /> Try again

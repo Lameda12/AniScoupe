@@ -20,7 +20,7 @@ export default async function WatchPage({
   }
 
   const target = getStreamTarget(anime.mal_id);
-  const total = target?.kind === "movie" ? 1 : Math.max(await getEpisodeCount(anime), 1);
+  const total = target?.kind === "movie" ? 1 : Math.max(getEpisodeCount(anime), 1);
   const requested = Number.parseInt(ep ?? "1", 10);
   const initialEpisode = Number.isFinite(requested) ? Math.min(Math.max(requested, 1), total) : 1;
 

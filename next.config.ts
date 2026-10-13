@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
+      { protocol: "https", hostname: "s4.anilist.co" },
+      { protocol: "https", hostname: "*.anilist.co" },
       { protocol: "https", hostname: "cdn.myanimelist.net" },
       { protocol: "https", hostname: "myanimelist.net" },
       { protocol: "https", hostname: "*.myanimelist.net" },

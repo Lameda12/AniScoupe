@@ -11,10 +11,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Shuffle, Zap, Moon, Skull, Laugh, Quote } from "lucide-react";
 
 const MOODS = [
-  { key: "hype", label: "Hype", icon: Zap, genres: [1, 2, 4], color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/30" },
-  { key: "chill", label: "Chill", icon: Moon, genres: [36, 13, 22], color: "bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30" },
-  { key: "dark", label: "Dark", icon: Skull, genres: [14, 37, 7], color: "bg-rose-500/20 text-rose-400 border-rose-500/30 hover:bg-rose-500/30" },
-  { key: "funny", label: "Funny", icon: Laugh, genres: [4, 9, 15], color: "bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30" },
+  { key: "hype", label: "Hype", icon: Zap, genres: ["Action", "Adventure"], color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/30" },
+  { key: "chill", label: "Chill", icon: Moon, genres: ["Slice of Life"], color: "bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30" },
+  { key: "dark", label: "Dark", icon: Skull, genres: ["Horror", "Psychological", "Thriller"], color: "bg-rose-500/20 text-rose-400 border-rose-500/30 hover:bg-rose-500/30" },
+  { key: "funny", label: "Funny", icon: Laugh, genres: ["Comedy"], color: "bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30" },
 ] as const;
 
 export default function DiscoverPage() {
