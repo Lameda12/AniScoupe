@@ -3,16 +3,29 @@ import { Anime, AnimeChanQuote, AnimeFact, JikanResponse } from "@/types/anime";
 const JIKAN_BASE = "https://api.jikan.moe/v4";
 const ANIMECHAN_BASE = "https://animechan.io/api/v1";
 
-async function jikanFetch<T>(path: string): Promise<T> {
-  const res = await fetch(`${JIKAN_BASE}${path}`, { next: { revalidate: 300 } });
-  if (!res.ok) throw new Error(`Jikan API error: ${res.status}`);
-  return res.json();
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Jikan rate-limits at 3 req/s and 60 req/min and has frequent 5xx blips, so retry those with backoff.
+async function jikanFetch<T>(path: string, attempts = 3): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    let status = 0;
+    try {
+      const res = await fetch(`${JIKAN_BASE}${path}`, { next: { revalidate: 300 } });
+      if (res.ok) return res.json();
+      status = res.status;
+    } catch (err) {
+      if (attempt >= attempts) throw err;
+    }
+    const retryable = status === 0 || status === 429 || status >= 500;
+    if (!retryable || attempt >= attempts) throw new Error(`Jikan API error: ${status}`);
+    await sleep(1000 * attempt);
+  }
 }
 
 export async function searchAnime(query: string, status?: string, type?: string): Promise<Anime[]> {
   let path = `/anime?q=${encodeURIComponent(query)}&limit=20`;
   if (status) path += `&status=${status}`;
-  if (type) path += `&type=${type}`;
+  if (type) path += `&type=${type.toLowerCase()}`;
   const data = await jikanFetch<JikanResponse<Anime[]>>(path);
   return data.data;
 }
