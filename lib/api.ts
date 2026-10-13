@@ -32,6 +32,20 @@ export async function getAnimeById(id: number): Promise<Anime> {
   return data.data;
 }
 
+/** Episode count for an anime. Falls back to Jikan's episode list for airing shows where `episodes` is null. */
+export async function getEpisodeCount(anime: Anime): Promise<number> {
+  if (anime.episodes) return anime.episodes;
+  try {
+    const first = await jikanFetch<JikanResponse<unknown[]>>(`/anime/${anime.mal_id}/episodes`);
+    const lastPage = first.pagination?.last_visible_page ?? 1;
+    if (lastPage <= 1) return first.data.length;
+    const last = await jikanFetch<JikanResponse<unknown[]>>(`/anime/${anime.mal_id}/episodes?page=${lastPage}`);
+    return (lastPage - 1) * 100 + last.data.length;
+  } catch {
+    return 0;
+  }
+}
+
 export async function getAnimeByGenre(genreIds: number[]): Promise<Anime[]> {
   const genres = genreIds.join(",");
   const data = await jikanFetch<JikanResponse<Anime[]>>(`/anime?genres=${genres}&limit=20&order_by=score&sort=desc`);
