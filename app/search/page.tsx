@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import { Search, X, Filter } from "lucide-react";
+import { Search, X, Filter, RotateCw } from "lucide-react";
 
 const STATUS_OPTIONS = ["", "airing", "complete", "upcoming"] as const;
 const TYPE_OPTIONS = ["", "TV", "Movie", "OVA", "Special", "ONA"] as const;
@@ -20,27 +20,45 @@ export default function SearchPage() {
   const [searched, setSearched] = useState(false);
   const [status, setStatus] = useState<string>("");
   const [type, setType] = useState<string>("");
+  const [error, setError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Bumped on every request so a slow earlier response can't overwrite a newer one.
+  const requestId = useRef(0);
+
+  const run = useCallback(async (load: () => Promise<Anime[]>) => {
+    const id = ++requestId.current;
+    setLoading(true);
+    setError(false);
+    try {
+      const data = await load();
+      if (id === requestId.current) setResults(data);
+    } catch {
+      if (id === requestId.current) {
+        setResults([]);
+        setError(true);
+      }
+    } finally {
+      if (id === requestId.current) setLoading(false);
+    }
+  }, []);
+
+  const loadTop = useCallback(() => run(getTopAnime), [run]);
 
   useEffect(() => {
     inputRef.current?.focus();
-    // Load top anime initially
-    getTopAnime().then(setResults);
-  }, []);
+    loadTop();
+  }, [loadTop]);
 
-  const doSearch = useCallback(async (q: string, s: string, t: string) => {
-    if (!q.trim()) return;
-    setLoading(true);
-    setSearched(true);
-    try {
-      const data = await searchAnime(q, s || undefined, t || undefined);
-      setResults(data);
-    } catch {
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const doSearch = useCallback(
+    (q: string, s: string, t: string) => {
+      if (!q.trim()) return;
+      setSearched(true);
+      run(() => searchAnime(q.trim(), s || undefined, t || undefined));
+    },
+    [run]
+  );
+
+  const retry = () => (searched ? doSearch(query, status, type) : loadTop());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +68,7 @@ export default function SearchPage() {
   const clear = () => {
     setQuery("");
     setSearched(false);
-    getTopAnime().then(setResults);
+    loadTop();
   };
 
   return (
@@ -134,11 +152,17 @@ export default function SearchPage() {
       {/* Section label */}
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-muted-foreground">
-          {searched
-            ? results.length > 0
-              ? `${results.length} results for "${query}"`
-              : `No results for "${query}"`
-            : "Top Anime"}
+          {loading
+            ? searched
+              ? `Searching for "${query}"...`
+              : "Loading top anime..."
+            : error
+              ? "Something went wrong"
+              : searched
+                ? results.length > 0
+                  ? `${results.length} results for "${query}"`
+                  : `No results for "${query}"`
+                : "Top Anime"}
         </p>
       </div>
 
@@ -152,6 +176,16 @@ export default function SearchPage() {
               <Skeleton className="h-3 w-1/2 bg-muted" />
             </div>
           ))}
+        </div>
+      ) : error ? (
+        <div className="text-center py-24">
+          <p className="font-display text-4xl text-muted-foreground/30 mb-4">COULDN&apos;T LOAD</p>
+          <p className="text-muted-foreground text-sm mb-6">
+            The anime database (AniList) is busy or down right now. Give it a few seconds.
+          </p>
+          <Button onClick={retry} variant="outline" className="gap-2">
+            <RotateCw size={14} /> Try again
+          </Button>
         </div>
       ) : results.length === 0 && searched ? (
         <div className="text-center py-24">
