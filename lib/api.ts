@@ -1,6 +1,11 @@
 import { Anime, AnimeChanQuote, AnimeFact, JikanResponse } from "@/types/anime";
 
-const JIKAN_BASE = "https://api.jikan.moe/v4";
+export const JIKAN_BASE = "https://api.jikan.moe/v4";
+export const JIKAN_REVALIDATE = 900; // seconds
+
+// Browser calls go through our cached proxy (app/api/jikan) so most requests never reach Jikan.
+const jikanBase = () => (typeof window === "undefined" ? JIKAN_BASE : "/api/jikan");
+
 const ANIMECHAN_BASE = "https://animechan.io/api/v1";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -10,7 +15,7 @@ async function jikanFetch<T>(path: string, attempts = 3): Promise<T> {
   for (let attempt = 1; ; attempt++) {
     let status = 0;
     try {
-      const res = await fetch(`${JIKAN_BASE}${path}`, { next: { revalidate: 300 } });
+      const res = await fetch(`${jikanBase()}${path}`, { next: { revalidate: JIKAN_REVALIDATE } });
       if (res.ok) return res.json();
       status = res.status;
     } catch (err) {
