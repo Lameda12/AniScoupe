@@ -1,21 +1,21 @@
-export type AudioTrack = "sub" | "dub";
+export type StreamTarget = { kind: "movie"; tmdbId: number } | { kind: "tv"; tmdbId: number; season: number; offset: number };
+
+const FRAMEX_BASE = "https://framextv.xyz";
 
 /**
- * FrameXTV embed URL template. Placeholders:
- *   {id}    MyAnimeList id
- *   {ep}    episode number (1-based)
- *   {audio} "sub" | "dub"
- *
- * Override per deployment with NEXT_PUBLIC_STREAM_EMBED_TEMPLATE.
- * The default path is a placeholder: confirm it against https://framextv.xyz/api.
+ * TV embed template. Placeholders: {id} TMDB show id, {season}, {episode}.
+ * The default is unverified: confirm against https://framextv.xyz/api, or override
+ * with NEXT_PUBLIC_FRAMEX_TV_TEMPLATE.
  */
-const EMBED_TEMPLATE =
-  process.env.NEXT_PUBLIC_STREAM_EMBED_TEMPLATE ?? "https://framextv.xyz/embed/anime/{id}/{ep}?audio={audio}";
+const TV_TEMPLATE =
+  process.env.NEXT_PUBLIC_FRAMEX_TV_TEMPLATE ?? `${FRAMEX_BASE}/embed/tv/{id}/{season}/{episode}?autoplay=1&muted=0`;
 
-export function buildEmbedUrl(malId: number, episode: number, audio: AudioTrack): string {
-  return EMBED_TEMPLATE.replaceAll("{id}", String(malId))
-    .replaceAll("{ep}", String(episode))
-    .replaceAll("{audio}", audio);
+/** Build the FrameXTV embed URL. `episode` is the MAL episode number (1-based). */
+export function buildEmbedUrl(target: StreamTarget, episode: number): string {
+  if (target.kind === "movie") return `${FRAMEX_BASE}/embed/${target.tmdbId}?autoplay=1&muted=0`;
+  return TV_TEMPLATE.replaceAll("{id}", String(target.tmdbId))
+    .replaceAll("{season}", String(target.season))
+    .replaceAll("{episode}", String(episode + target.offset));
 }
 
 export const progressKey = (malId: number) => `aniscope-progress-${malId}`;

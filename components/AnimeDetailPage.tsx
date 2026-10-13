@@ -14,9 +14,10 @@ import { getSavedEpisode } from "@/lib/stream";
 
 interface Props {
   anime: Anime;
+  streamable: boolean;
 }
 
-export default function AnimeDetailPage({ anime }: Props) {
+export default function AnimeDetailPage({ anime, streamable }: Props) {
   const router = useRouter();
   const imageUrl =
     anime.images?.webp?.large_image_url ||
@@ -156,12 +157,14 @@ export default function AnimeDetailPage({ anime }: Props) {
             )}
 
             <div className="flex flex-wrap gap-3">
-              <Button
-                onClick={() => router.push(`/anime/${anime.mal_id}/watch?ep=${getSavedEpisode(anime.mal_id)}`)}
-                className="bg-rose-500 hover:bg-rose-600 text-white gap-2"
-              >
-                <Play size={16} fill="currentColor" /> Watch Now
-              </Button>
+              {streamable && (
+                <Button
+                  onClick={() => router.push(`/anime/${anime.mal_id}/watch?ep=${getSavedEpisode(anime.mal_id)}`)}
+                  className="bg-rose-500 hover:bg-rose-600 text-white gap-2"
+                >
+                  <Play size={16} fill="currentColor" /> Watch Now
+                </Button>
+              )}
               <WatchlistButton anime={anime} />
             </div>
           </motion.div>
