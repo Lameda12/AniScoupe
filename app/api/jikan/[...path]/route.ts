@@ -10,19 +10,31 @@ export async function GET(req: Request, { params }: { params: Promise<{ path: st
   const random = path === "random/anime";
   const upstream = `${JIKAN_BASE}/${path}${new URL(req.url).search}`;
 
+  let res: Response;
   try {
-    const res = await fetch(upstream, random ? { cache: "no-store" } : { next: { revalidate: JIKAN_REVALIDATE } });
-    if (!res.ok) {
-      return Response.json({ error: `Jikan ${res.status}` }, { status: res.status, headers: { "Cache-Control": "no-store" } });
-    }
-    return Response.json(await res.json(), {
+    res = await fetch(upstream, random ? { cache: "no-store" } : { next: { revalidate: JIKAN_REVALIDATE } });
+  } catch (err) {
+    const cause = err instanceof Error && err.cause ? `${err.message}: ${String(err.cause)}` : String(err);
+    console.error("[jikan-proxy] fetch failed", upstream, cause);
+    return failure(502, "Jikan unreachable", cause);
+  }
+
+  if (!res.ok) return failure(res.status, `Jikan ${res.status}`);
+
+  const body = await res.text();
+  try {
+    return Response.json(JSON.parse(body), {
       headers: {
-        "Cache-Control": random
-          ? "no-store"
-          : `public, s-maxage=${JIKAN_REVALIDATE}, stale-while-revalidate=86400`,
+        "Cache-Control": random ? "no-store" : `public, s-maxage=${JIKAN_REVALIDATE}, stale-while-revalidate=86400`,
       },
     });
   } catch {
-    return Response.json({ error: "Jikan unreachable" }, { status: 502, headers: { "Cache-Control": "no-store" } });
+    // e.g. a Cloudflare challenge page served with 200
+    console.error("[jikan-proxy] non-JSON response", upstream, res.status, body.slice(0, 200));
+    return failure(502, "Jikan returned non-JSON", body.slice(0, 120));
   }
+}
+
+function failure(status: number, error: string, detail?: string) {
+  return Response.json({ error, detail }, { status, headers: { "Cache-Control": "no-store" } });
 }

@@ -3,8 +3,8 @@ import { Anime, AnimeChanQuote, AnimeFact, JikanResponse } from "@/types/anime";
 export const JIKAN_BASE = "https://api.jikan.moe/v4";
 export const JIKAN_REVALIDATE = 900; // seconds
 
-// Browser calls go through our cached proxy (app/api/jikan) so most requests never reach Jikan.
-const jikanBase = () => (typeof window === "undefined" ? JIKAN_BASE : "/api/jikan");
+// Browser calls try our cached proxy (app/api/jikan) first, then fall back to Jikan directly on retries.
+const jikanBase = (attempt: number) => (typeof window === "undefined" || attempt > 1 ? JIKAN_BASE : "/api/jikan");
 
 const ANIMECHAN_BASE = "https://animechan.io/api/v1";
 
@@ -15,15 +15,17 @@ async function jikanFetch<T>(path: string, attempts = 3): Promise<T> {
   for (let attempt = 1; ; attempt++) {
     let status = 0;
     try {
-      const res = await fetch(`${jikanBase()}${path}`, { next: { revalidate: JIKAN_REVALIDATE } });
-      if (res.ok) return res.json();
+      const res = await fetch(`${jikanBase(attempt)}${path}`, { next: { revalidate: JIKAN_REVALIDATE } });
+      if (res.ok) return await res.json();
       status = res.status;
     } catch (err) {
       if (attempt >= attempts) throw err;
     }
-    const retryable = status === 0 || status === 429 || status >= 500;
+    const viaProxy = jikanBase(attempt) !== JIKAN_BASE;
+    // Any proxy failure falls straight through to Jikan; only back off between direct Jikan attempts.
+    const retryable = viaProxy || status === 0 || status === 429 || status >= 500;
     if (!retryable || attempt >= attempts) throw new Error(`Jikan API error: ${status}`);
-    await sleep(1000 * attempt);
+    if (!viaProxy) await sleep(1000 * attempt);
   }
 }
 
